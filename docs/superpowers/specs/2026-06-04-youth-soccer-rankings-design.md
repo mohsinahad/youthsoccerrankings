@@ -177,3 +177,13 @@ before needing a queue/data-lake/microservice split. A full ETL pipeline is wher
   Open: Playwright scrapers are resource-heavy — decide between Scheduled Deployment vs.
   a Reserved VM (always-on) for scraping jobs.
 - Identity-resolution UX for manual alias overrides.
+- **Identity candidate scoping (Plan 1 code review):** `best_match` uses
+  `token_set_ratio`, which matches abbreviated names against longer canonical names well
+  but can over-match across age groups (shared tokens, e.g. "...2010 Boys" vs
+  "...2012 Boys"). The scraper (Plan 2) MUST pre-filter candidates to the same
+  age_group/gender pool before calling `best_match`.
+- **`Rating` denormalization (raised in Plan 1 code review):** `Rating` carries its own
+  `age_group`/`gender` (duplicated from `Team`), making the unique constraint
+  `(team_id, age_group, gender)` effectively `(team_id)`. Decide in the Ranking Engine
+  plan whether to keep this denormalization (self-contained ratings per pool) or derive
+  age/gender from `Team` and simplify the constraint.
