@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 3d4849260254
+Revision ID: 302a5be3fc1a
 Revises: 
-Create Date: 2026-06-04 18:23:06.512397
+Create Date: 2026-06-04 18:28:33.564312
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3d4849260254'
+revision: str = '302a5be3fc1a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -50,6 +50,7 @@ def upgrade() -> None:
     sa.Column('home_score', sa.Integer(), nullable=False),
     sa.Column('away_score', sa.Integer(), nullable=False),
     sa.Column('competition', sa.String(), nullable=True),
+    sa.Column('raw_payload', sa.JSON(), nullable=True),
     sa.ForeignKeyConstraint(['away_team_id'], ['teams.id'], ),
     sa.ForeignKeyConstraint(['home_team_id'], ['teams.id'], ),
     sa.ForeignKeyConstraint(['source_id'], ['sources.id'], ),

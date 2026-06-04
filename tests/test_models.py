@@ -42,6 +42,7 @@ def test_create_game_links_two_teams() -> None:
                 home_score=3,
                 away_score=1,
                 competition="ECNL National",
+                raw_payload={"source_row": 42},
             )
         )
         s.commit()
@@ -49,3 +50,4 @@ def test_create_game_links_two_teams() -> None:
         game = s.scalar(select(Game))
         assert game is not None
         assert game.home_score == 3 and game.away_score == 1
+        assert game.raw_payload == {"source_row": 42}

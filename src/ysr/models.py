@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import datetime as dt
+from typing import Any
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Date,
     DateTime,
@@ -70,6 +72,7 @@ class Game(Base):
     home_score: Mapped[int] = mapped_column(Integer)
     away_score: Mapped[int] = mapped_column(Integer)
     competition: Mapped[str | None] = mapped_column(String, nullable=True)
+    raw_payload: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
 
 class Rating(Base):
