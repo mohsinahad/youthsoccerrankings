@@ -172,5 +172,8 @@ before needing a queue/data-lake/microservice split. A full ETL pipeline is wher
 
 - Exact season/roster handling in Glicko-2 (decay vs. discrete seasonal pools).
 - Margin-of-victory weighting (cap to avoid rewarding blowouts).
-- Hosting/scheduling specifics for the nightly batch and scrapers.
+- **Hosting: Replit.** Web app on an Autoscale Deployment; Postgres via Replit's
+  built-in (Neon-backed) database; nightly Glicko-2 batch via a Scheduled Deployment.
+  Open: Playwright scrapers are resource-heavy — decide between Scheduled Deployment vs.
+  a Reserved VM (always-on) for scraping jobs.
 - Identity-resolution UX for manual alias overrides.
