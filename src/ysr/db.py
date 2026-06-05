@@ -6,8 +6,21 @@ from ysr.config import get_settings
 from ysr.models import Base
 
 
+def _normalize_db_url(url: str) -> str:
+    # Managed Postgres (Replit/Neon, Heroku) hands out postgres:// or postgresql://;
+    # our engine uses psycopg3, which needs the +psycopg driver. Leave anything that
+    # already names a driver (or isn't Postgres, e.g. sqlite) untouched.
+    if url.startswith(("postgresql+", "postgres+")):
+        return url
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://") :]
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url[len("postgres://") :]
+    return url
+
+
 def make_engine(url: str | None = None) -> Engine:
-    resolved = url or get_settings().database_url
+    resolved = _normalize_db_url(url or get_settings().database_url)
     if resolved == "sqlite+pysqlite:///:memory:":
         return create_engine(
             resolved,
