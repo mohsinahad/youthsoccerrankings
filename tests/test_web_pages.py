@@ -55,3 +55,17 @@ def test_rankings_defaults_to_first_pool_when_unfiltered(client: TestClient) -> 
     resp = client.get("/rankings")
     assert resp.status_code == 200
     assert "Alpha FC" in resp.text
+
+
+def test_team_page_shows_record_and_results(client: TestClient) -> None:
+    resp = client.get("/teams/1")
+    assert resp.status_code == 200
+    body = resp.text
+    assert "Alpha FC" in body
+    assert "Beta FC" in body
+    assert "3" in body and "0" in body
+
+
+def test_team_page_unknown_returns_404(client: TestClient) -> None:
+    resp = client.get("/teams/9999")
+    assert resp.status_code == 404
