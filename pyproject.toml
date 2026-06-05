@@ -13,6 +13,7 @@ dependencies = [
 
 [project.scripts]
 ysr-scrape = "ysr.cli:main"
+ysr-rank = "ysr.ranking.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.0", "ruff>=0.4", "black>=24.0", "mypy>=1.10"]

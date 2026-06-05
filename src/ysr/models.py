@@ -77,12 +77,9 @@ class Game(Base):
 
 class Rating(Base):
     __tablename__ = "ratings"
-    __table_args__ = (UniqueConstraint("team_id", "age_group", "gender"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
-    age_group: Mapped[str] = mapped_column(String)
-    gender: Mapped[str] = mapped_column(String)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), unique=True)
     rating: Mapped[float] = mapped_column(Float)
     rating_deviation: Mapped[float] = mapped_column(Float)
     volatility: Mapped[float] = mapped_column(Float)
