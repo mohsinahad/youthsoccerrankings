@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 302a5be3fc1a
+Revision ID: 89e667d3c75a
 Revises: 
-Create Date: 2026-06-04 18:28:33.564312
+Create Date: 2026-06-05 10:07:36.988633
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '302a5be3fc1a'
+revision: str = '89e667d3c75a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -68,8 +68,6 @@ def upgrade() -> None:
     op.create_table('ratings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('team_id', sa.Integer(), nullable=False),
-    sa.Column('age_group', sa.String(), nullable=False),
-    sa.Column('gender', sa.String(), nullable=False),
     sa.Column('rating', sa.Float(), nullable=False),
     sa.Column('rating_deviation', sa.Float(), nullable=False),
     sa.Column('volatility', sa.Float(), nullable=False),
@@ -77,7 +75,7 @@ def upgrade() -> None:
     sa.Column('computed_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['team_id'], ['teams.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('team_id', 'age_group', 'gender')
+    sa.UniqueConstraint('team_id')
     )
     op.create_table('team_aliases',
     sa.Column('id', sa.Integer(), nullable=False),
