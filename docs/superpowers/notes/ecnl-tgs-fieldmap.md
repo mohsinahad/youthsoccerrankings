@@ -67,3 +67,18 @@ explicit boolean; unplayed games carry null scores.
 flight's games are all played, so the third record's scores were set to `null` to
 represent an unplayed game exactly as TGS would (null scores) — structure otherwise
 unchanged.
+
+## Verified live run (Task 8, 2026-06-04)
+
+`ysr-scrape ecnl --event 3210 --flight 26840 --age-group U12 --gender M` against the live
+AthleteOne API:
+
+```
+run 1: ingested: 36 new, 0 updated, 0 unchanged, 9 teams created
+run 2: ingested: 0 new, 0 updated, 36 unchanged, 0 teams created   # idempotent
+spot-check: teams=9 games=36
+  sample: Pittsburgh Riverhounds - Pre ECNL B13 2-2 Manta United Soccer Club - Manta 2013 Boys Pink | 2024-08-18
+```
+
+Confirms the end-to-end pipeline (fetch → parse → stable-id team resolution → idempotent
+upsert) works against production data with no duplicates on re-run.
