@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import logging
 import pathlib
 
 from ysr.scrapers.ecnl import parse_division
@@ -24,9 +25,6 @@ def test_parse_division_maps_completed_games_only() -> None:
     assert g.home_source_id == "69758"
     assert g.home_club == "Pittsburgh Riverhounds"
     assert g.competition == "U12 (2013) Pre-ECNL North - 9v9"
-
-
-import logging
 
 
 def test_parse_division_skips_malformed_record_and_logs(caplog) -> None:  # type: ignore[no-untyped-def]
