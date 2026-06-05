@@ -4,6 +4,15 @@ import datetime as dt
 from typing import Any
 
 from ysr.scrapers.base import ScrapedGame
+from ysr.scrapers.http import HttpClient
+
+_BASE = "https://api.athleteone.com/api/Event"
+
+
+def fetch_division(client: HttpClient, *, event_id: int, flight_id: int) -> dict[str, Any]:
+    # teamID=0 returns every game in the flight (confirmed by the Task 1 spike).
+    url = f"{_BASE}/get-schedules-by-flight/{event_id}/{flight_id}/0"
+    return client.get_json(url)
 
 
 def _parse_date(value: str) -> dt.date:
