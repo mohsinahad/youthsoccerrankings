@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 from dataclasses import dataclass
 
 from sqlalchemy import select
@@ -27,6 +28,13 @@ def get_or_create_source(
     session.add(source)
     session.flush()
     return source
+
+
+def mark_source_run(session: Session, source: Source, status: str) -> None:
+    # Source.last_run is a naive DateTime column; store naive UTC.
+    source.last_run = dt.datetime.now(dt.UTC).replace(tzinfo=None)
+    source.status = status
+    session.flush()
 
 
 def _resolve_team(

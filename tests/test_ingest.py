@@ -76,3 +76,15 @@ def test_sibling_teams_with_distinct_source_ids_are_not_conflated() -> None:
         s.commit()
         assert r.teams_created == 2
         assert s.scalar(select(func.count()).select_from(Team)) == 2
+
+
+def test_mark_source_run_sets_timestamp_and_status() -> None:
+    from ysr.ingest import mark_source_run
+
+    with _session() as s:
+        src = get_or_create_source(s, "ECNL", "https://x", "ysr.scrapers.ecnl")
+        mark_source_run(s, src, "ok")
+        s.commit()
+
+        assert src.status == "ok"
+        assert src.last_run is not None
