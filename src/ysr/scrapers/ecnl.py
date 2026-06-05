@@ -12,7 +12,13 @@ _BASE = "https://api.athleteone.com/api/Event"
 def fetch_division(client: HttpClient, *, event_id: int, flight_id: int) -> dict[str, Any]:
     # teamID=0 returns every game in the flight (confirmed by the Task 1 spike).
     url = f"{_BASE}/get-schedules-by-flight/{event_id}/{flight_id}/0"
-    return client.get_json(url)
+    payload = client.get_json(url)
+    if payload.get("result") != "success":
+        raise RuntimeError(
+            f"AthleteOne API returned non-success for event {event_id} flight {flight_id}: "
+            f"result={payload.get('result')!r} message={payload.get('message')!r}"
+        )
+    return payload
 
 
 def _parse_date(value: str) -> dt.date:
