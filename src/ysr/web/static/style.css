@@ -1,0 +1,20 @@
+:root { --fg:#1a1a1a; --muted:#777; --line:#e5e7eb; --accent:#2563eb; }
+* { box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; color: var(--fg); margin: 0; }
+.site-header { border-bottom: 1px solid var(--line); padding: 14px 20px; font-weight: 700; }
+.site-header a { color: var(--fg); text-decoration: none; }
+main { max-width: 880px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 22px; }
+.muted { color: var(--muted); font-size: 0.85em; }
+.filters { margin: 12px 0; display: flex; gap: 8px; }
+table.rankings { width: 100%; border-collapse: collapse; }
+table.rankings th, table.rankings td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); }
+table.rankings a { color: var(--accent); text-decoration: none; }
+.badge { background: #fde68a; border-radius: 4px; padding: 1px 6px; font-size: 11px; margin-left: 6px; }
+.pool-list { list-style: none; padding: 0; }
+.pool-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.stats { display: flex; gap: 24px; margin: 14px 0; }
+.stats .label { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.stats .value { font-size: 20px; font-weight: 700; }
+table.results td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.w { color: #16a34a; font-weight: 700; } .l { color: #dc2626; font-weight: 700; } .d { color: var(--muted); font-weight: 700; }

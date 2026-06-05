@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Youth Soccer Rankings{% endblock %}
+{% block content %}
+<h1>Rankings</h1>
+{% if pools %}
+<ul class="pool-list">
+  {% for p in pools %}
+  <li><a href="/rankings?age_group={{ p.age_group }}&gender={{ p.gender }}">{{ p.age_group }} {{ "Boys" if p.gender == "M" else "Girls" }}</a> <span class="muted">({{ p.team_count }} teams)</span></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="muted">No rankings yet.</p>
+{% endif %}
+{% endblock %}

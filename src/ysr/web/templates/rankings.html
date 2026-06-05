@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ age_group }} {{ "Boys" if gender == "M" else "Girls" }} Rankings{% endblock %}
+{% block content %}
+<h1>{{ age_group or "" }} {{ "Boys" if gender == "M" else ("Girls" if gender == "F" else "") }} Rankings</h1>
+<form method="get" action="/rankings" class="filters">
+  <select name="age_group">
+    {% for p in pools|map(attribute='age_group')|unique %}
+    <option value="{{ p }}" {{ "selected" if p == age_group else "" }}>{{ p }}</option>
+    {% endfor %}
+  </select>
+  <select name="gender">
+    <option value="M" {{ "selected" if gender == "M" else "" }}>Boys</option>
+    <option value="F" {{ "selected" if gender == "F" else "" }}>Girls</option>
+  </select>
+  <button type="submit">View</button>
+</form>
+{% if teams %}
+<table class="rankings">
+  <thead><tr><th>#</th><th>Team</th><th>Club</th><th>Rating</th><th>Record</th></tr></thead>
+  <tbody>
+  {% for t in teams %}
+  <tr>
+    <td>{{ t.rank }}</td>
+    <td><a href="/teams/{{ t.team_id }}">{{ t.display_name }}</a>
+      {% if t.is_provisional %}<span class="badge">provisional</span>{% endif %}</td>
+    <td class="muted">{{ t.club or "" }}</td>
+    <td>{{ "%.0f"|format(t.rating) }} <span class="muted">±{{ "%.0f"|format(t.rd) }}</span></td>
+    <td>{{ t.wins }}-{{ t.draws }}-{{ t.losses }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">No rankings for this pool yet.</p>
+{% endif %}
+{% endblock %}
