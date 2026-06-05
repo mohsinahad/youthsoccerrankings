@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ d.team.display_name }} — {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}{% endblock %}
+{% block description %}{{ d.team.display_name }} ranking, record, and results — {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}.{% endblock %}
+{% block content %}
+<h1>{{ d.team.display_name }}</h1>
+<p class="muted">{{ d.team.club or "" }} · {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}</p>
+
+<div class="stats">
+  <div><div class="label">Rank</div><div class="value">#{{ d.team.rank }}</div></div>
+  <div><div class="label">Rating</div><div class="value">{{ "%.0f"|format(d.team.rating) }} <span class="muted">±{{ "%.0f"|format(d.team.rd) }}</span></div></div>
+  <div><div class="label">Record</div><div class="value">{{ d.team.wins }}-{{ d.team.draws }}-{{ d.team.losses }}</div></div>
+  {% if d.team.is_provisional %}<div><div class="label">Status</div><div class="value"><span class="badge">provisional</span></div></div>{% endif %}
+</div>
+
+<h2>Results</h2>
+{% if d.results %}
+<table class="results">
+  {% for r in d.results %}
+  <tr>
+    <td class="{{ r.outcome|lower }}">{{ r.outcome }}</td>
+    <td>vs {{ r.opponent }}</td>
+    <td>{{ r.our_score }}–{{ r.their_score }}</td>
+    <td class="muted">{{ r.date }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No results yet.</p>
+{% endif %}
+{% endblock %}
