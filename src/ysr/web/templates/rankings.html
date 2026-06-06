@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}{{ age_group }} {{ "Boys" if gender == "M" else "Girls" }} Rankings{% endblock %}
+{% block title %}{% if birth_year %}U{{ u_age }} ({{ birth_year }} {{ "Boys" if gender == "M" else "Girls" }}) {% endif %}Rankings{% endblock %}
 {% block content %}
-<h1>{{ age_group or "" }} {{ "Boys" if gender == "M" else ("Girls" if gender == "F" else "") }} Rankings</h1>
+<h1>{% if birth_year %}U{{ u_age }} ({{ birth_year }} {{ "Boys" if gender == "M" else "Girls" }}) {% endif %}Rankings</h1>
 <form method="get" action="/rankings" class="filters">
-  <select name="age_group">
-    {% for p in pools|map(attribute='age_group')|unique %}
-    <option value="{{ p }}" {{ "selected" if p == age_group else "" }}>{{ p }}</option>
+  <select name="birth_year">
+    {% for p in pools|unique(attribute='birth_year') %}
+    <option value="{{ p.birth_year }}" {{ "selected" if p.birth_year == birth_year else "" }}>U{{ p.u_age }} ({{ p.birth_year }})</option>
     {% endfor %}
   </select>
   <select name="gender">

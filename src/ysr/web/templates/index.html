@@ -5,7 +5,7 @@
 {% if pools %}
 <ul class="pool-list">
   {% for p in pools %}
-  <li><a href="/rankings?age_group={{ p.age_group }}&gender={{ p.gender }}">{{ p.age_group }} {{ "Boys" if p.gender == "M" else "Girls" }}</a> <span class="muted">({{ p.team_count }} teams)</span></li>
+  <li><a href="/rankings?birth_year={{ p.birth_year }}&gender={{ p.gender }}">U{{ p.u_age }} ({{ p.birth_year }} {{ "Boys" if p.gender == "M" else "Girls" }})</a> <span class="muted">({{ p.team_count }} teams)</span></li>
   {% endfor %}
 </ul>
 {% else %}

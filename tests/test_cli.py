@@ -51,8 +51,8 @@ def test_event_ingests_all_flights(db_url: str, monkeypatch: pytest.MonkeyPatch)
     with make_session_factory(make_engine(db_url))() as s:
         assert s.scalar(select(func.count()).select_from(Game)) == 4
         assert s.scalar(select(func.count()).select_from(Team)) == 8
-        pools = {(ag, g) for ag, g in s.execute(select(Team.age_group, Team.gender).distinct()).all()}
-        assert pools == {("U12", "M"), ("U11", "M")}
+        pools = {(ag, g) for ag, g in s.execute(select(Team.birth_year, Team.gender).distinct()).all()}
+        assert pools == {(2013, "M"), (2014, "M")}
         src = s.scalar(select(Source).where(Source.name == "ECNL"))
         assert src is not None and src.status == "ok"
 

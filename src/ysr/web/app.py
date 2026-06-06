@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from ysr.db import make_engine, make_session_factory
 from ysr.web import queries
+from ysr.web.season import u_age as compute_u_age
 
 _BASE = pathlib.Path(__file__).parent
 templates = Jinja2Templates(directory=str(_BASE / "templates"))
@@ -40,19 +41,27 @@ def index(request: Request, session: SessionDep) -> HTMLResponse:
 def rankings(
     request: Request,
     session: SessionDep,
-    age_group: str | None = None,
+    birth_year: int | None = None,
     gender: str | None = None,
 ) -> HTMLResponse:
     pools = queries.list_pools(session)
     teams: list[queries.RankedTeam] = []
+    selected_u_age: int | None = None
     if pools:
-        if age_group is None or gender is None:
-            age_group, gender = pools[0].age_group, pools[0].gender
-        teams = queries.pool_rankings(session, age_group, gender)
+        if birth_year is None or gender is None:
+            birth_year, gender = pools[0].birth_year, pools[0].gender
+        teams = queries.pool_rankings(session, birth_year, gender)
+        selected_u_age = compute_u_age(birth_year)
     return templates.TemplateResponse(
         request,
         "rankings.html",
-        {"pools": pools, "teams": teams, "age_group": age_group, "gender": gender},
+        {
+            "pools": pools,
+            "teams": teams,
+            "birth_year": birth_year,
+            "gender": gender,
+            "u_age": selected_u_age,
+        },
     )
 
 

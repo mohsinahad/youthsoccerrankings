@@ -7,12 +7,14 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from ysr.models import Game, Rating, RatingHistory, Team
+from ysr.web.season import u_age
 
 
 @dataclass(frozen=True)
 class Pool:
-    age_group: str
+    birth_year: int
     gender: str
+    u_age: int
     team_count: int
 
 
@@ -48,8 +50,9 @@ class ResultRow:
 @dataclass(frozen=True)
 class TeamDetail:
     team: RankedTeam
-    age_group: str
+    birth_year: int
     gender: str
+    u_age: int
     history: list[HistoryPoint]
     results: list[ResultRow]
 
@@ -57,15 +60,15 @@ class TeamDetail:
 def list_pools(session: Session) -> list[Pool]:
     rows = (
         session.execute(
-            select(Team.age_group, Team.gender, func.count(Team.id))
+            select(Team.birth_year, Team.gender, func.count(Team.id))
             .join(Rating, Rating.team_id == Team.id)
-            .group_by(Team.age_group, Team.gender)
-            .order_by(Team.age_group, Team.gender)
+            .group_by(Team.birth_year, Team.gender)
+            .order_by(Team.birth_year, Team.gender)
         )
         .tuples()
         .all()
     )
-    return [Pool(age_group=ag, gender=g, team_count=n) for ag, g, n in rows]
+    return [Pool(birth_year=by, gender=g, u_age=u_age(by), team_count=n) for by, g, n in rows]
 
 
 def _records(games: list[Game], team_ids: list[int]) -> dict[int, tuple[int, int, int]]:
@@ -83,10 +86,10 @@ def _records(games: list[Game], team_ids: list[int]) -> dict[int, tuple[int, int
     return {tid: (v[0], v[1], v[2]) for tid, v in tally.items()}
 
 
-def pool_rankings(session: Session, age_group: str, gender: str) -> list[RankedTeam]:
+def pool_rankings(session: Session, birth_year: int, gender: str) -> list[RankedTeam]:
     teams = list(
         session.scalars(
-            select(Team).where(Team.age_group == age_group, Team.gender == gender)
+            select(Team).where(Team.birth_year == birth_year, Team.gender == gender)
         ).all()
     )
     team_by_id = {t.id: t for t in teams}
@@ -135,7 +138,7 @@ def team_detail(session: Session, team_id: int) -> TeamDetail | None:
     team = session.get(Team, team_id)
     if team is None:
         return None
-    ranked = pool_rankings(session, team.age_group, team.gender)
+    ranked = pool_rankings(session, team.birth_year, team.gender)
     me = next((rt for rt in ranked if rt.team_id == team_id), None)
     if me is None:
         return None
@@ -172,5 +175,10 @@ def team_detail(session: Session, team_id: int) -> TeamDetail | None:
             )
         )
     return TeamDetail(
-        team=me, age_group=team.age_group, gender=team.gender, history=history, results=results
+        team=me,
+        birth_year=team.birth_year,
+        gender=team.gender,
+        u_age=u_age(team.birth_year),
+        history=history,
+        results=results,
     )

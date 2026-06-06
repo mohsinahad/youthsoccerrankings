@@ -35,7 +35,7 @@ def _game(home_id: str, away_id: str, hs: int, aws: int, day: int = 2) -> Scrape
 def test_ingest_creates_teams_and_games() -> None:
     with _session() as s:
         src = get_or_create_source(s, "ECNL", "https://x", "ysr.scrapers.ecnl")
-        result = ingest_games(s, src.id, [_game("100", "200", 3, 1)], age_group="U16", gender="M")
+        result = ingest_games(s, src.id, [_game("100", "200", 3, 1)], birth_year=2013, gender="M")
         s.commit()
 
         assert result == IngestResult(inserted=1, updated=0, unchanged=0, teams_created=2)
@@ -47,16 +47,16 @@ def test_ingest_creates_teams_and_games() -> None:
 def test_ingest_is_idempotent_and_updates_changed_scores() -> None:
     with _session() as s:
         src = get_or_create_source(s, "ECNL", "https://x", "ysr.scrapers.ecnl")
-        ingest_games(s, src.id, [_game("100", "200", 1, 0)], age_group="U16", gender="M")
+        ingest_games(s, src.id, [_game("100", "200", 1, 0)], birth_year=2013, gender="M")
         s.commit()
 
-        r2 = ingest_games(s, src.id, [_game("100", "200", 1, 0)], age_group="U16", gender="M")
+        r2 = ingest_games(s, src.id, [_game("100", "200", 1, 0)], birth_year=2013, gender="M")
         s.commit()
         assert r2 == IngestResult(inserted=0, updated=0, unchanged=1, teams_created=0)
         assert s.scalar(select(func.count()).select_from(Game)) == 1
         assert s.scalar(select(func.count()).select_from(Team)) == 2
 
-        r3 = ingest_games(s, src.id, [_game("100", "200", 2, 2)], age_group="U16", gender="M")
+        r3 = ingest_games(s, src.id, [_game("100", "200", 2, 2)], birth_year=2013, gender="M")
         s.commit()
         assert r3 == IngestResult(inserted=0, updated=1, unchanged=0, teams_created=0)
         g = s.scalar(select(Game))
@@ -72,7 +72,7 @@ def test_sibling_teams_with_distinct_source_ids_are_not_conflated() -> None:
             away_source_id="301", away_team="Manta 2013 Boys Blue", away_club="Manta",
             home_score=1, away_score=0, competition="U13 Boys", raw={},
         )
-        r = ingest_games(s, src.id, [g], age_group="U13", gender="M")
+        r = ingest_games(s, src.id, [g], birth_year=2011, gender="M")
         s.commit()
         assert r.teams_created == 2
         assert s.scalar(select(func.count()).select_from(Team)) == 2

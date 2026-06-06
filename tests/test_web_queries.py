@@ -14,9 +14,9 @@ def _session() -> Session:
 
 
 def _seed(s: Session) -> dict[str, int]:
-    a = Team(display_name="A", club="A FC", age_group="U16", gender="M")
-    b = Team(display_name="B", club="B FC", age_group="U16", gender="M")
-    c = Team(display_name="C", club="C FC", age_group="U16", gender="M")
+    a = Team(display_name="A", club="A FC", birth_year=2013, gender="M")
+    b = Team(display_name="B", club="B FC", birth_year=2013, gender="M")
+    c = Team(display_name="C", club="C FC", birth_year=2013, gender="M")
     s.add_all([a, b, c])
     s.flush()
     s.add_all([
@@ -41,14 +41,14 @@ def test_list_pools_counts_rated_teams() -> None:
         _seed(s)
         pools = list_pools(s)
         assert len(pools) == 1
-        assert pools[0].age_group == "U16" and pools[0].gender == "M"
+        assert pools[0].birth_year == 2013 and pools[0].gender == "M"
         assert pools[0].team_count == 3
 
 
 def test_pool_rankings_order_record_and_provisional() -> None:
     with _session() as s:
         ids = _seed(s)
-        ranked = pool_rankings(s, "U16", "M")
+        ranked = pool_rankings(s, 2013, "M")
         assert [r.team_id for r in ranked] == [ids["a"], ids["b"], ids["c"]]
         assert [r.rank for r in ranked] == [1, 2, 3]
         a = ranked[0]
@@ -66,7 +66,7 @@ def test_team_detail_has_rank_history_and_results() -> None:
         d = team_detail(s, ids["a"])
         assert d is not None
         assert d.team.rank == 1
-        assert d.age_group == "U16" and d.gender == "M"
+        assert d.birth_year == 2013 and d.gender == "M"
         assert len(d.history) == 2
         assert [h.rating for h in d.history] == [1600.0, 1700.0]
         assert len(d.results) == 2

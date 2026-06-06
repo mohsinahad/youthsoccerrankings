@@ -38,7 +38,7 @@ class Team(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     display_name: Mapped[str] = mapped_column(String)
     club: Mapped[str | None] = mapped_column(String, nullable=True)
-    age_group: Mapped[str] = mapped_column(String)
+    birth_year: Mapped[int] = mapped_column(Integer)
     gender: Mapped[str] = mapped_column(String)
     state: Mapped[str | None] = mapped_column(String, nullable=True)
     region: Mapped[str | None] = mapped_column(String, nullable=True)

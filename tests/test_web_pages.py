@@ -16,8 +16,8 @@ def client() -> Generator[TestClient, None, None]:
     create_all(engine)
     factory = make_session_factory(engine)
     with factory() as s:
-        a = Team(display_name="Alpha FC", club="Alpha", age_group="U16", gender="M")
-        b = Team(display_name="Beta FC", club="Beta", age_group="U16", gender="M")
+        a = Team(display_name="Alpha FC", club="Alpha", birth_year=2013, gender="M")
+        b = Team(display_name="Beta FC", club="Beta", birth_year=2013, gender="M")
         s.add_all([a, b])
         s.flush()
         s.add(Game(source_id=1, date=dt.date(2026, 3, 1), home_team_id=a.id, away_team_id=b.id, home_score=3, away_score=0))
@@ -40,11 +40,11 @@ def client() -> Generator[TestClient, None, None]:
 def test_index_lists_pools(client: TestClient) -> None:
     resp = client.get("/")
     assert resp.status_code == 200
-    assert "U16" in resp.text
+    assert "2013" in resp.text
 
 
 def test_rankings_orders_teams_and_marks_provisional(client: TestClient) -> None:
-    resp = client.get("/rankings", params={"age_group": "U16", "gender": "M"})
+    resp = client.get("/rankings", params={"birth_year": 2013, "gender": "M"})
     assert resp.status_code == 200
     body = resp.text
     assert body.index("Alpha FC") < body.index("Beta FC")

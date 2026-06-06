@@ -35,7 +35,7 @@ def _ingest_flights(
             payload = fetch_division(client, event_id=event_id, flight_id=flight.flight_id)
             games = parse_division(payload)
             result = ingest_games(
-                session, source_id, games, age_group=flight.age_group, gender=flight.gender
+                session, source_id, games, birth_year=flight.birth_year, gender=flight.gender
             )
             session.commit()
             ingested += 1
