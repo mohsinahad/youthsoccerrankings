@@ -11,12 +11,13 @@ from sqlalchemy import pool
 from alembic import context
 
 from ysr.config import get_settings
+from ysr.db import normalize_db_url
 from ysr.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+config.set_main_option("sqlalchemy.url", normalize_db_url(get_settings().database_url))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
