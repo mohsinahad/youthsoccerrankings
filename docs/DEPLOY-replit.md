@@ -1,39 +1,42 @@
-# Deploying to Replit (SQLite — the simple path)
+# Deploying to Replit
 
-The MVP runs on a **SQLite file** — no separate database service, no `DATABASE_URL`
-surgery. The web app is read-only; the scrape/rank CLIs write the file. Postgres remains
-supported (just set `DATABASE_URL` to a Postgres URL — the app auto-adds the `+psycopg`
-driver), but you don't need it to get live.
+The web app is read-only and reuses the existing models. It works on **SQLite** (a file,
+zero config) or **Postgres** (set `DATABASE_URL` — the app/alembic auto-add the `+psycopg`
+driver, so Replit's managed Postgres URL works as-is).
 
 ## One-time setup
 
 1. **Import the repo** into Replit (from GitHub).
-2. **Set the run command.** In the `.replit` file, set:
+2. **Set the run command** — in the `.replit` file:
    ```
    run = "bash scripts/replit-run.sh"
    ```
-   That script defaults `DATABASE_URL` to `sqlite+pysqlite:///./ysr.db`, runs migrations,
-   and starts the web server on `0.0.0.0:${PORT:-8080}`.
+   This is **self-healing**: it puts uv on `PATH`, installs uv if missing, runs
+   `uv sync --frozen` (rebuilds `.venv` with the right Python + the `ysr` package — a
+   no-op when warm), then serves uvicorn on `0.0.0.0:${PORT:-8080}`. It does **not** run
+   migrations (those belong to the populate step; the DB persists across FS wipes).
 3. **Load data once** — in the Replit **Shell**:
    ```
    bash scripts/replit-populate.sh
    ```
-   (Defaults to the demo flight: ECNL U12 Boys, event 3210 / flight 26840. Pass
-   `EVENT FLIGHT AGE_GROUP GENDER` to load a different one, e.g.
-   `bash scripts/replit-populate.sh 3210 26840 U12 M`.)
-4. **Click Run** and open the webview. You should see the rankings.
+   Defaults to demo event 3210 (Pre-ECNL, U9–U12 Boys, ~80 teams across 4 pools). It
+   migrates, scrapes the whole event, and ranks. Pass an event id to load a different one:
+   `bash scripts/replit-populate.sh 3210`.
+4. **Run** and open the webview — the rankings page's pool selector shows each age/gender.
 
-## Notes
+## Important Replit notes
 
-- **Persistence:** the SQLite file lives in the repo's filesystem. On the Replit
-  **workspace** and **Reserved VM** deployments this persists. On an **Autoscale**
-  deployment the filesystem is ephemeral — for that target, either use a Reserved VM or
-  commit/ship a pre-populated `ysr.db`.
-- **`uv`:** the scripts use `uv run` if `uv` is available, otherwise they call the tools
-  directly (relying on Replit having installed the project's dependencies from
-  `pyproject.toml`). If neither works, install uv in the Shell:
-  `curl -LsSf https://astral.sh/uv/install.sh | sh`.
-- **Re-loading data:** `replit-populate.sh` is idempotent — re-running updates scores and
-  re-ranks without creating duplicates.
-- **Switching to Postgres later:** set the `DATABASE_URL` secret to your Postgres URL
-  (plain `postgresql://...` is fine — the app normalizes it). Everything else is unchanged.
+- **Always go through `uv`.** Replit's system Python may be 3.11; this project needs 3.12.
+  `uv` fetches 3.12 itself and installs `ysr` into `.venv`. Never run bare `python`/`uvicorn`
+  (they hit system 3.11 with no `ysr` → `ModuleNotFoundError`). uv lives at
+  `$HOME/workspace/.local/bin` (Replit's `/home/runner` is read-only).
+- **Ephemeral filesystem = wipes.** Basic workspace / Autoscale clear installed packages
+  between boots, so the venv vanishes. The self-healing run script re-syncs on boot
+  (slower after a wipe, fast when warm). For startup that's both fast **and** reliable, use
+  a **Reserved VM** deployment (persistent disk) — the recommended target for "always up."
+- **Git on Replit:** never `git pull` or edit files there. Use
+  `git fetch origin && git reset --hard origin/main` (Replit auto-commits cause conflicts).
+- **Postgres:** Replit's managed Postgres sets `DATABASE_URL` (locked). It works unedited —
+  the app normalizes `postgresql://` → `postgresql+psycopg://`. The DB persists across FS wipes.
+- **Re-loading / updating data:** `replit-populate.sh` is idempotent — re-run anytime to
+  refresh scores and rankings.
