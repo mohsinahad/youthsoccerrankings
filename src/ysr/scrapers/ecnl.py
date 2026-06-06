@@ -2,13 +2,63 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import re
+from dataclasses import dataclass
 from typing import Any
 
 from ysr.scrapers.base import ScrapedGame
 from ysr.scrapers.http import HttpClient
 
 _BASE = "https://api.athleteone.com/api/Event"
+_AGE_RE = re.compile(r"U(\d+)")
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class FlightRef:
+    flight_id: int
+    age_group: str
+    gender: str
+    name: str
+
+
+def fetch_event_tree(client: HttpClient, *, event_id: int) -> dict[str, Any]:
+    url = f"{_BASE}/get-event-schedule-or-standings/{event_id}"
+    payload = client.get_json(url)
+    if payload.get("result") != "success":
+        raise RuntimeError(
+            f"AthleteOne API returned non-success for event {event_id}: "
+            f"result={payload.get('result')!r} message={payload.get('message')!r}"
+        )
+    return payload
+
+
+def parse_event_flights(tree: dict[str, Any]) -> list[FlightRef]:
+    data = tree["data"]
+    flights: list[FlightRef] = []
+    for list_key, gender in (("boysDivAndFlightList", "M"), ("girlsDivAndFlightList", "F")):
+        for division in data.get(list_key) or []:
+            for flight in division.get("flightList") or []:
+                if not flight.get("hasActiveSchedule"):
+                    continue
+                name = str(flight.get("flightName", ""))
+                match = _AGE_RE.search(name)
+                if match is None:
+                    logger.warning(
+                        "skipping flight %r: no age group (U##) in name %r",
+                        flight.get("flightID"),
+                        name,
+                    )
+                    continue
+                flights.append(
+                    FlightRef(
+                        flight_id=int(flight["flightID"]),
+                        age_group=f"U{match.group(1)}",
+                        gender=gender,
+                        name=name,
+                    )
+                )
+    return flights
 
 
 def fetch_division(client: HttpClient, *, event_id: int, flight_id: int) -> dict[str, Any]:
