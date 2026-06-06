@@ -1,8 +1,16 @@
 import pytest
 from sqlalchemy import select
 
-from ysr.db import create_all, make_engine, make_session_factory
+from ysr.db import create_all, make_engine, make_session_factory, normalize_db_url
 from ysr.models import Source
+
+
+def test_normalize_db_url_adds_psycopg_driver() -> None:
+    assert normalize_db_url("postgresql://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
+    assert normalize_db_url("postgres://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
+    # already-driver'd and non-postgres URLs are unchanged
+    assert normalize_db_url("postgresql+psycopg://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
+    assert normalize_db_url("sqlite+pysqlite:///:memory:") == "sqlite+pysqlite:///:memory:"
 
 
 @pytest.mark.parametrize(
