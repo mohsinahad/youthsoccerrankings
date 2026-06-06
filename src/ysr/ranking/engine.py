@@ -52,15 +52,15 @@ def _upsert_rating(session: Session, team_id: int, g: Glicko, now: dt.datetime) 
 
 def recompute_all(session: Session) -> RankingRunResult:
     now = dt.datetime.now(dt.UTC).replace(tzinfo=None)
-    pools = session.execute(select(Team.age_group, Team.gender).distinct()).tuples().all()
+    pools = session.execute(select(Team.birth_year, Team.gender).distinct()).tuples().all()
 
     pools_rated = 0
     teams_rated = 0
     history_rows = 0
-    for age_group, gender in pools:
+    for birth_year, gender in pools:
         team_ids = list(
             session.scalars(
-                select(Team.id).where(Team.age_group == age_group, Team.gender == gender)
+                select(Team.id).where(Team.birth_year == birth_year, Team.gender == gender)
             ).all()
         )
         games = list(

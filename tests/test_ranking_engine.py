@@ -16,9 +16,9 @@ def _session() -> Session:
 
 def _seed_pool(s: Session) -> dict[str, int]:
     src = Source(name="ECNL", base_url="x", scraper_module="m")
-    a = Team(display_name="A", age_group="U16", gender="M")
-    b = Team(display_name="B", age_group="U16", gender="M")
-    c = Team(display_name="C", age_group="U16", gender="M")
+    a = Team(display_name="A", birth_year=2013, gender="M")
+    b = Team(display_name="B", birth_year=2013, gender="M")
+    c = Team(display_name="C", birth_year=2013, gender="M")
     s.add_all([src, a, b, c])
     s.flush()
     s.add_all([
@@ -64,7 +64,7 @@ def test_recompute_is_idempotent_for_ratings_and_appends_history() -> None:
 
 def test_recompute_skips_pool_with_no_games() -> None:
     with _session() as s:
-        s.add(Team(display_name="Lonely", age_group="U10", gender="F"))
+        s.add(Team(display_name="Lonely", birth_year=2016, gender="F"))
         s.commit()
         result = recompute_all(s)
         s.commit()

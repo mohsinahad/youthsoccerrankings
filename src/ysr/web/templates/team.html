@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}{{ d.team.display_name }} — {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}{% endblock %}
-{% block description %}{{ d.team.display_name }} ranking, record, and results — {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}.{% endblock %}
+{% block title %}{{ d.team.display_name }} — U{{ d.u_age }} ({{ d.birth_year }} {{ "Boys" if d.gender == "M" else "Girls" }}){% endblock %}
+{% block description %}{{ d.team.display_name }} ranking, record, and results — U{{ d.u_age }} ({{ d.birth_year }} {{ "Boys" if d.gender == "M" else "Girls" }}).{% endblock %}
 {% block content %}
 <h1>{{ d.team.display_name }}</h1>
-<p class="muted">{{ d.team.club or "" }} · {{ d.age_group }} {{ "Boys" if d.gender == "M" else "Girls" }}</p>
+<p class="muted">{{ d.team.club or "" }} · U{{ d.u_age }} ({{ d.birth_year }} {{ "Boys" if d.gender == "M" else "Girls" }})</p>
 
 <div class="stats">
   <div><div class="label">Rank</div><div class="value">#{{ d.team.rank }}</div></div>

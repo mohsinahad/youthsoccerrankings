@@ -53,7 +53,7 @@ def _resolve_team(
     source_team_id: str,
     name: str,
     club: str | None,
-    age_group: str,
+    birth_year: int,
     gender: str,
 ) -> tuple[Team, bool]:
     alias = session.scalar(
@@ -67,7 +67,7 @@ def _resolve_team(
         assert team is not None
         return team, False
 
-    team = Team(display_name=name, club=club, age_group=age_group, gender=gender)
+    team = Team(display_name=name, club=club, birth_year=birth_year, gender=gender)
     session.add(team)
     session.flush()
     session.add(TeamAlias(alias_name=source_team_id, source_id=source_id, team_id=team.id))
@@ -113,16 +113,16 @@ def ingest_games(
     source_id: int,
     games: list[ScrapedGame],
     *,
-    age_group: str,
+    birth_year: int,
     gender: str,
 ) -> IngestResult:
     inserted = updated = unchanged = teams_created = 0
     for game in games:
         home, home_new = _resolve_team(
-            session, source_id, game.home_source_id, game.home_team, game.home_club, age_group, gender
+            session, source_id, game.home_source_id, game.home_team, game.home_club, birth_year, gender
         )
         away, away_new = _resolve_team(
-            session, source_id, game.away_source_id, game.away_team, game.away_club, age_group, gender
+            session, source_id, game.away_source_id, game.away_team, game.away_club, birth_year, gender
         )
         teams_created += int(home_new) + int(away_new)
         outcome = _upsert_game(session, source_id, game, home.id, away.id)

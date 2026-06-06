@@ -10,14 +10,14 @@ from ysr.scrapers.base import ScrapedGame
 from ysr.scrapers.http import HttpClient
 
 _BASE = "https://api.athleteone.com/api/Event"
-_AGE_RE = re.compile(r"U(\d+)")
+_YEAR_RE = re.compile(r"(\d{4})")
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class FlightRef:
     flight_id: int
-    age_group: str
+    birth_year: int
     gender: str
     name: str
 
@@ -38,24 +38,21 @@ def parse_event_flights(tree: dict[str, Any]) -> list[FlightRef]:
     flights: list[FlightRef] = []
     for list_key, gender in (("boysDivAndFlightList", "M"), ("girlsDivAndFlightList", "F")):
         for division in data.get(list_key) or []:
+            division_name = str(division.get("divisionName", ""))
+            year_match = _YEAR_RE.search(division_name)
+            if year_match is None:
+                logger.warning("skipping division %r: no birth year in name", division_name)
+                continue
+            birth_year = int(year_match.group(1))
             for flight in division.get("flightList") or []:
                 if not flight.get("hasActiveSchedule"):
-                    continue
-                name = str(flight.get("flightName", ""))
-                match = _AGE_RE.search(name)
-                if match is None:
-                    logger.warning(
-                        "skipping flight %r: no age group (U##) in name %r",
-                        flight.get("flightID"),
-                        name,
-                    )
                     continue
                 flights.append(
                     FlightRef(
                         flight_id=int(flight["flightID"]),
-                        age_group=f"U{match.group(1)}",
+                        birth_year=birth_year,
                         gender=gender,
-                        name=name,
+                        name=str(flight.get("flightName", "")),
                     )
                 )
     return flights

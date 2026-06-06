@@ -15,7 +15,7 @@ def _session() -> Session:
 def test_create_team_with_alias() -> None:
     with _session() as s:
         source = Source(name="ECNL", base_url="https://theecnl.com", scraper_module="ysr.scrapers.ecnl")
-        team = Team(display_name="Strikers FC", age_group="U15", gender="M", state="CA")
+        team = Team(display_name="Strikers FC", birth_year=2010, gender="M", state="CA")
         s.add_all([source, team])
         s.flush()
         s.add(TeamAlias(alias_name="Strikers FC 2010B", source_id=source.id, team_id=team.id))
@@ -29,8 +29,8 @@ def test_create_team_with_alias() -> None:
 def test_create_game_links_two_teams() -> None:
     with _session() as s:
         source = Source(name="ECNL", base_url="x", scraper_module="m")
-        home = Team(display_name="Home", age_group="U15", gender="M")
-        away = Team(display_name="Away", age_group="U15", gender="M")
+        home = Team(display_name="Home", birth_year=2010, gender="M")
+        away = Team(display_name="Away", birth_year=2010, gender="M")
         s.add_all([source, home, away])
         s.flush()
         s.add(

@@ -15,7 +15,7 @@ def test_parse_event_flights_from_real_tree() -> None:
     tree = json.loads(FIXTURE.read_text())
     flights = parse_event_flights(tree)
     assert [f.flight_id for f in flights] == [26840, 26847, 26838, 26839]
-    assert [f.age_group for f in flights] == ["U12", "U12", "U11", "U11"]
+    assert [f.birth_year for f in flights] == [2013, 2013, 2014, 2014]
     assert all(f.gender == "M" for f in flights)
 
 
@@ -45,23 +45,31 @@ def test_parse_event_flights_gender_active_and_age_filters() -> None:
         }
     }
     by_id = {f.flight_id: f for f in parse_event_flights(tree)}
-    assert set(by_id) == {100, 200}
-    assert by_id[100].gender == "M" and by_id[100].age_group == "U12"
-    assert by_id[200].gender == "F" and by_id[200].age_group == "U12"
+    # 101 is inactive (excluded); 102 is included because the birth year comes from the
+    # division name ("B2013"), not the flight name.
+    assert set(by_id) == {100, 102, 200}
+    assert by_id[100].gender == "M" and by_id[100].birth_year == 2013
+    assert by_id[102].birth_year == 2013
+    assert by_id[200].gender == "F" and by_id[200].birth_year == 2013
 
 
-def test_parse_event_flights_logs_skipped_flight(caplog: pytest.LogCaptureFixture) -> None:
+def test_parse_event_flights_skips_division_without_birth_year(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     tree = {
         "data": {
             "boysDivAndFlightList": [
-                {"flightList": [{"flightID": 9, "flightName": "no age here", "hasActiveSchedule": True}]}
+                {
+                    "divisionName": "Boys Pre-ECNL",
+                    "flightList": [{"flightID": 9, "flightName": "North", "hasActiveSchedule": True}],
+                }
             ],
             "girlsDivAndFlightList": [],
         }
     }
     with caplog.at_level(logging.WARNING):
         assert parse_event_flights(tree) == []
-    assert "9" in caplog.text
+    assert "Boys Pre-ECNL" in caplog.text
 
 
 def test_fetch_event_tree_raises_on_non_success() -> None:
