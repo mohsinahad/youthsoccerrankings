@@ -18,6 +18,16 @@ class IngestResult:
     teams_created: int
 
 
+@dataclass(frozen=True)
+class EventIngestResult:
+    flights_ingested: int
+    flights_failed: int
+    inserted: int
+    updated: int
+    unchanged: int
+    teams_created: int
+
+
 def get_or_create_source(
     session: Session, name: str, base_url: str, scraper_module: str
 ) -> Source:

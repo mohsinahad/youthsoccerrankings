@@ -1,0 +1,52 @@
+{
+  "result": "success",
+  "data": {
+    "girlsDivAndFlightList": [],
+    "boysDivAndFlightList": [
+      {
+        "divisionID": 14770,
+        "divisionName": "B2013",
+        "flightList": [
+          {
+            "divisionID": 14770,
+            "flightID": 26840,
+            "flightName": "U12 (2013) Pre-ECNL North - 9v9",
+            "teamsCount": 9,
+            "hasActiveSchedule": true,
+            "hideSettings": 0
+          },
+          {
+            "divisionID": 14770,
+            "flightID": 26847,
+            "flightName": "U12 (2013) Pre-ECNL South I Blue - 9v9",
+            "teamsCount": 7,
+            "hasActiveSchedule": true,
+            "hideSettings": 0
+          }
+        ]
+      },
+      {
+        "divisionID": 14769,
+        "divisionName": "B2014",
+        "flightList": [
+          {
+            "divisionID": 14769,
+            "flightID": 26838,
+            "flightName": "U11 (2014) Pre-ECNL North I - 9v9",
+            "teamsCount": 5,
+            "hasActiveSchedule": true,
+            "hideSettings": 0
+          },
+          {
+            "divisionID": 14769,
+            "flightID": 26839,
+            "flightName": "U11 (2014) Pre-ECNL North II - 9v9",
+            "teamsCount": 6,
+            "hasActiveSchedule": true,
+            "hideSettings": 0
+          }
+        ]
+      }
+    ]
+  }
+}
